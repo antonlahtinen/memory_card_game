@@ -6,7 +6,7 @@ This was our last school project of the academic year (21-22). The game was made
 
 For example just download the Zip file  --> extract the Zip file --> open Memory_card_game.sln --> start program
 
-# Picctures of the game
+# Pictures of the game
 
 <img width="453" alt="MCG_StartPage" src="https://user-images.githubusercontent.com/115111370/208117647-05efe298-381d-43d5-86fa-b39b5b774ec9.png">
 
