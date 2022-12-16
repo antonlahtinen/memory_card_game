@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "Memory_card_game/1.0.0": {
+        "runtime": {
+          "Memory_card_game.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Memory_card_game/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
