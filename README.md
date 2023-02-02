@@ -1,6 +1,6 @@
-# Memory_card_game
+# Memory card game
 
-This was our last school project of the academic year (21-22). The game was made in four (4) days with Windows Forms app in Visual Studio using C#
+This was my last school project of the academic year (21-22). The game was made in four (4) days with Windows Forms app in Visual Studio using C#
 
 # How to play?
 
