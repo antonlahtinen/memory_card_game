@@ -1,10 +1,10 @@
 # Memory card game
 
-This was my last school project of the academic year (21-22). The game was made in four (4) days with Windows Forms app in Visual Studio using C#
+The game was made by me with Windows Forms app in Visual Studio using C#
 
 # How to play?
 
-For example just download the Zip file  --> extract the Zip file --> open Memory_card_game.sln --> start program
+For example just download the Zip file  --> extract the Zip file --> Open Memory_card_game.sln --> Start Program
 
 # Pictures of the game
 
