@@ -1,10 +1,10 @@
-# Memory card game
+# Memory Card Game
 
 The game was made by me with Windows Forms app in Visual Studio using C#
 
 # How to play?
 
-For example just download the Zip file  --> extract the Zip file --> Open Memory_card_game.sln --> Start Program
+Download the Zip file  --> Extract the Zip file --> Open Memory_card_game.sln --> Start Program
 
 # Pictures of the game
 
