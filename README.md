@@ -6,7 +6,7 @@ The game was made by me with Windows Forms app in Visual Studio using C#
 
 Download the Zip file  --> Extract the Zip file --> Open Memory_card_game.sln --> Start Program
 
-# PICTUREES
+# PICTURES
 
 <img width="453" height="auto" alt="MCG_StartPage" src="https://user-images.githubusercontent.com/115111370/208117647-05efe298-381d-43d5-86fa-b39b5b774ec9.png">
 
