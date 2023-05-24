@@ -1,4 +1,4 @@
-# Memory Card Game
+# Memory Game
 
 The game was made by me with Windows Forms app in Visual Studio using C#
 
@@ -13,3 +13,5 @@ Download the Zip file  --> Extract the Zip file --> Open Memory_card_game.sln --
 <img width="408" alt="MCG_Pic2" src="https://user-images.githubusercontent.com/115111370/208117657-bfafeff3-1bba-400e-9eb6-036e50fa3fce.png">
 
 <img width="408" alt="MCG_Pic3" src="https://user-images.githubusercontent.com/115111370/208117667-bb25dfd3-15b7-4e97-bd95-00e94e49d37d.png">
+
+UI elements are not made by me.
