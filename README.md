@@ -1,6 +1,6 @@
 # MEMORY GAME
 
-The game was made by me with Windows Forms app in Visual Studio using C#
+The game was made by group of three students (3) with Windows Forms app in Visual Studio using C#
 
 # HOW TO PLAY?
 
