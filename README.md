@@ -1,12 +1,15 @@
 # MEMORY GAME
 
-The game was made by group of three students (3) with Windows Forms app in Visual Studio using C#
+The game was developed by me using C# and Windows Forms app in Visual Studio.
 
-# HOW TO PLAY?
+## HOW TO PLAY?
 
-Download the Zip file  --> Extract the Zip file --> Open Memory_card_game.sln --> Start Program
+- Download the ZIP file
+- Unzip the ZIP file
+- Open Memory_card_game.sln
+- Start Program
 
-# PICTURES
+## PICTURES
 
 <img width="453" height="auto" alt="MCG_StartPage" src="https://user-images.githubusercontent.com/115111370/208117647-05efe298-381d-43d5-86fa-b39b5b774ec9.png">
 
