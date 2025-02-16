@@ -2,31 +2,17 @@ namespace Memory_card_game
 {
     public partial class GameBoard : Form
     {
-        //variables
-        Random paikka = new Random();
-        List<Point> points = new List<Point>();
+        // Game state variables
+        private readonly Random random = new Random();
+        private readonly List<Point> cardPositions = new List<Point>();
+        private PictureBox? firstSelectedCard;    // Stores the first card clicked in a pair
+        private PictureBox? secondSelectedCard;   // Stores the second card clicked in a pair
+        private readonly Dictionary<string, PictureBox> matchedPairs = new Dictionary<string, PictureBox>();  // Keeps track of matched card pairs
 
-        PictureBox? pendingImage1;
-        PictureBox? pendingImage2;
+        // Point system constants
+        private const int PointsForMatch = 3;    // Points awarded for finding a matching pair
+        private const int PenaltyForMismatch = 1; // Points deducted for incorrect match attempt
 
-        PictureBox? Ready1;
-        PictureBox? Ready2;
-        PictureBox? Ready3;
-        PictureBox? Ready4;
-        PictureBox? Ready5;
-        PictureBox? Ready6;
-        PictureBox? Ready7;
-        PictureBox? Ready8;
-        PictureBox? Ready9;
-        PictureBox? Ready10;
-        PictureBox? Ready11;
-        PictureBox? Ready12;
-        PictureBox? Ready13;
-        PictureBox? Ready14;
-        PictureBox? Ready15;
-        PictureBox? Ready16;
-
-        bool again = false; //Pelaa uudestaan yes or no
         public GameBoard()
         {
             InitializeComponent();
@@ -34,43 +20,66 @@ namespace Memory_card_game
 
         private void GameBoard_Load(object sender, EventArgs e)
         {
+            // Initialize and start the game when the form loads
+            InitializeGame();
+            ShuffleCards();
+            LoadCardImages();
+            timer1.Start();
+        }
+
+        private void InitializeGame()
+        {
+            // Reset game state and prepare the board
             PicHolder.Enabled = false;
+            cardPositions.Clear();
+            matchedPairs.Clear();
+            firstSelectedCard = null;
+            secondSelectedCard = null;
+
+            // Store initial positions of all cards
             foreach (PictureBox picture in PicHolder.Controls)
             {
                 picture.Enabled = false;
-                points.Add(picture.Location);
+                cardPositions.Add(picture.Location);
             }
+        }
+
+        private void ShuffleCards()
+        {
+            // Randomly assign positions to cards
             foreach (PictureBox picture in PicHolder.Controls)
             {
-                int next = paikka.Next(points.Count);
-                Point p = points[next];
+                int next = random.Next(cardPositions.Count);
+                Point p = cardPositions[next];
                 picture.Location = p;
-                points.Remove(p);
+                cardPositions.Remove(p);
             }
-            timer1.Start();
+        }
 
-            Pic1.Image = Properties.Resources.Pic1;
-            DupPic1.Image = Properties.Resources.Pic1;
-            Pic2.Image = Properties.Resources.Pic2;
-            DupPic2.Image = Properties.Resources.Pic2;
-            Pic3.Image = Properties.Resources.Pic3;
-            DupPic3.Image = Properties.Resources.Pic3;
-            Pic4.Image = Properties.Resources.Pic4;
-            DupPic4.Image = Properties.Resources.Pic4;
-            Pic5.Image = Properties.Resources.Pic5;
-            DupPic5.Image = Properties.Resources.Pic5;
-            Pic6.Image = Properties.Resources.Pic6;
-            DupPic6.Image = Properties.Resources.Pic6;
-            Pic7.Image = Properties.Resources.Pic7;
-            DupPic7.Image = Properties.Resources.Pic7;
-            Pic8.Image = Properties.Resources.Pic8;
-            DupPic8.Image = Properties.Resources.Pic8;
+        private void LoadCardImages()
+        {
+            // Assign images to each card pair
+            Pic1.Image = DupPic1.Image = Properties.Resources.Pic1;
+            Pic2.Image = DupPic2.Image = Properties.Resources.Pic2;
+            Pic3.Image = DupPic3.Image = Properties.Resources.Pic3;
+            Pic4.Image = DupPic4.Image = Properties.Resources.Pic4;
+            Pic5.Image = DupPic5.Image = Properties.Resources.Pic5;
+            Pic6.Image = DupPic6.Image = Properties.Resources.Pic6;
+            Pic7.Image = DupPic7.Image = Properties.Resources.Pic7;
+            Pic8.Image = DupPic8.Image = Properties.Resources.Pic8;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            // Initial timer that shows cards briefly before covering them
             timer1.Stop();
             timer2.Start();
+            EnableAllCards();
+        }
+
+        private void EnableAllCards()
+        {
+            // Enable all cards for interaction and show their cover image
             PicHolder.Enabled = true;
             foreach (PictureBox picture in PicHolder.Controls)
             {
@@ -82,9 +91,16 @@ namespace Memory_card_game
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            UpdateGameTimer();
+        }
+
+        private void UpdateGameTimer()
+        {
+            // Update the countdown timer and check for game over
             int timer = Convert.ToInt32(TimeCounter.Text);
-            timer = timer - 1;
-            TimeCounter.Text = Convert.ToString(timer);
+            timer--;
+            TimeCounter.Text = timer.ToString();
+            
             if (timer == 0)
             {
                 timer2.Stop();
@@ -92,696 +108,141 @@ namespace Memory_card_game
             }
         }
 
-        public void CheckTags()
+        private void timer3_Tick(object sender, EventArgs e)
         {
-
+            ResetUnmatchedCards();
         }
-        public void CheckWinState()
+
+        private void ResetUnmatchedCards()
         {
+            // Reset cards that didn't match back to their covered state
+            if (firstSelectedCard != null && secondSelectedCard != null)
+            {
+                firstSelectedCard.Image = secondSelectedCard.Image = Properties.Resources.Cover;
+                firstSelectedCard.Enabled = secondSelectedCard.Enabled = true;
+                firstSelectedCard = secondSelectedCard = null;
+            }
             
-            if (Pic1.Enabled == false && DupPic1.Enabled == false && Pic2.Enabled == false && DupPic2.Enabled == false && Pic3.Enabled == false && DupPic3.Enabled == false
-                 && Pic4.Enabled == false && DupPic4.Enabled == false && Pic5.Enabled == false && DupPic5.Enabled == false && Pic6.Enabled == false && DupPic6.Enabled == false
-                  && Pic7.Enabled == false && DupPic7.Enabled == false && Pic8.Enabled == false && DupPic8.Enabled == false)
+            PicHolder.Enabled = true;
+            timer3.Stop();
+        }
+
+        private void HandleCardClick(PictureBox clickedCard, Image cardImage)
+        {
+            // Handle the logic when a card is clicked
+            clickedCard.Image = cardImage;
+            
+            if (firstSelectedCard == null)
+            {
+                // First card of the pair was clicked
+                firstSelectedCard = clickedCard;
+                clickedCard.Enabled = false;
+            }
+            else if (secondSelectedCard == null)
+            {
+                // Second card of the pair was clicked
+                secondSelectedCard = clickedCard;
+                clickedCard.Enabled = false;
+                CheckForMatch();
+            }
+        }
+
+        private void CheckForMatch()
+        {
+            // Check if the two selected cards match
+            if (firstSelectedCard == null || secondSelectedCard == null) return;
+
+            if (firstSelectedCard.Tag == secondSelectedCard.Tag)
+            {
+                HandleMatch();
+            }
+            else
+            {
+                HandleMismatch();
+            }
+        }
+
+        private void HandleMatch()
+        {
+            // Process a successful match
+            matchedPairs[firstSelectedCard.Tag.ToString()] = firstSelectedCard;
+            matchedPairs[secondSelectedCard.Tag.ToString()] = secondSelectedCard;
+            
+            firstSelectedCard.Enabled = secondSelectedCard.Enabled = false;
+            firstSelectedCard = secondSelectedCard = null;
+            
+            UpdateScore(PointsForMatch);
+            CheckWinState();
+        }
+
+        private void HandleMismatch()
+        {
+            // Process when cards don't match
+            timer3.Start();
+            PicHolder.Enabled = false;
+            UpdateScore(-PenaltyForMismatch);
+        }
+
+        private void UpdateScore(int points)
+        {
+            // Update the player's score
+            int currentScore = Convert.ToInt32(ScoreNumber.Text);
+            ScoreNumber.Text = (currentScore + points).ToString();
+        }
+
+        private void CheckWinState()
+        {
+            // Check if all pairs have been found
+            if (matchedPairs.Count == 8) // All pairs found
             {
                 timer2.Stop();
-                MessageBox.Show("You got " + ScoreNumber.Text + " points!!", "You won!");
-            }
-        }
 
-        private void PicHolder_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void Pic1_Click(object sender, EventArgs e)
-        {
-            Pic1.Image = Properties.Resources.Pic1;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = Pic1;
-                Pic1.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = Pic1;
-                Pic1.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
+                int finalScore = Convert.ToInt32(ScoreNumber.Text);
+                if (finalScore > 0)
                 {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready1 = Pic1;
-                    Ready2 = DupPic1;
-                    Ready1.Enabled = false;
-                    Ready2.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
+                    MessageBox.Show($"You got {finalScore} points!!", "You won!");
                 }
                 else
                 {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-        private void DupPic1_Click(object sender, EventArgs e)
-        {
-            DupPic1.Image = Properties.Resources.Pic1;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = DupPic1;
-                DupPic1.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = DupPic1;
-                DupPic1.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready1 = Pic1;
-                    Ready2 = DupPic1;
-                    Ready1.Enabled = false;
-                    Ready2.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-
-        private void Pic2_Click(object sender, EventArgs e)
-        {
-            Pic2.Image = Properties.Resources.Pic2;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = Pic2;
-                Pic2.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = Pic2;
-                Pic2.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready3 = Pic2;
-                    Ready4 = DupPic2;
-                    Ready3.Enabled = false;
-                    Ready4.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-        private void DupPic2_Click(object sender, EventArgs e)
-        {
-            DupPic2.Image = Properties.Resources.Pic2;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = DupPic2;
-                DupPic2.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = DupPic2;
-                DupPic2.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready3 = Pic2;
-                    Ready4 = DupPic2;
-                    Ready3.Enabled = false;
-                    Ready4.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-        private void Pic3_Click(object sender, EventArgs e)
-        {
-            Pic3.Image = Properties.Resources.Pic3;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = Pic3;
-                Pic3.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = Pic3;
-                Pic3.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready5 = Pic3;
-                    Ready6 = DupPic3;
-                    Ready5.Enabled = false;
-                    Ready6.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-
-        private void DupPic3_Click(object sender, EventArgs e)
-        {
-            DupPic3.Image = Properties.Resources.Pic3;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = DupPic3;
-                DupPic3.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = DupPic3;
-                DupPic3.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready5 = Pic3;
-                    Ready6 = DupPic3;
-                    Ready5.Enabled = false;
-                    Ready6.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-        private void Pic4_Click(object sender, EventArgs e)
-        {
-            Pic4.Image = Properties.Resources.Pic4;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = Pic4;
-                Pic4.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = Pic4;
-                Pic4.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready7 = Pic4;
-                    Ready8 = DupPic4;
-                    Ready7.Enabled = false;
-                    Ready8.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-        private void DupPic4_Click(object sender, EventArgs e)
-        {
-            DupPic4.Image = Properties.Resources.Pic4;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = DupPic4;
-                DupPic4.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = DupPic4;
-                DupPic4.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready7 = Pic4;
-                    Ready8 = DupPic4;
-                    Ready7.Enabled = false;
-                    Ready8.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-        private void Pic5_Click(object sender, EventArgs e)
-        {
-            Pic5.Image = Properties.Resources.Pic5;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = Pic5;
-                Pic5.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = Pic5;
-                Pic5.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready9 = Pic5;
-                    Ready10 = DupPic5;
-                    Ready9.Enabled = false;
-                    Ready10.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-        private void DupPic5_Click(object sender, EventArgs e)
-        {
-            DupPic5.Image = Properties.Resources.Pic5;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = DupPic5;
-                DupPic5.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = DupPic5;
-                DupPic5.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready9 = Pic5;
-                    Ready10 = DupPic5;
-                    Ready9.Enabled = false;
-                    Ready10.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-        private void Pic6_Click(object sender, EventArgs e)
-        {
-            Pic6.Image = Properties.Resources.Pic6;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = Pic6;
-                Pic6.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = Pic6;
-                Pic6.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready11 = Pic6;
-                    Ready12 = DupPic6;
-                    Ready11.Enabled = false;
-                    Ready12.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-
-        private void DupPic6_Click(object sender, EventArgs e)
-        {
-            DupPic6.Image = Properties.Resources.Pic6;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = DupPic6;
-                DupPic6.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = DupPic6;
-                DupPic6.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready11 = Pic6;
-                    Ready12 = DupPic6;
-                    Ready11.Enabled = false;
-                    Ready12.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-        private void Pic7_Click(object sender, EventArgs e)
-        {
-            Pic7.Image = Properties.Resources.Pic7;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = Pic7;
-                Pic7.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = Pic7;
-                Pic7.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready13 = Pic7;
-                    Ready14 = DupPic7;
-                    Ready13.Enabled = false;
-                    Ready14.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-
-        private void DupPic7_Click(object sender, EventArgs e)
-        {
-            DupPic7.Image = Properties.Resources.Pic7;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = DupPic7;
-                DupPic7.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = DupPic7;
-                DupPic7.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready13 = Pic7;
-                    Ready14 = DupPic7;
-                    Ready13.Enabled = false;
-                    Ready14.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                }
-            }
-        }
-
-        private void Pic8_Click(object sender, EventArgs e)
-        {
-            Pic8.Image = Properties.Resources.Pic8;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = Pic8;
-                Pic8.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = Pic8;
-                Pic8.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready15 = Pic8;
-                    Ready16 = DupPic8;
-                    Ready15.Enabled = false;
-                    Ready16.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
-                    timer3.Start();
-                }
-            }
-        }
-        private void DupPic8_Click(object sender, EventArgs e)
-        {
-            DupPic8.Image = Properties.Resources.Pic8;
-            if (pendingImage1 == null)
-            {
-                pendingImage1 = DupPic8;
-                DupPic8.Enabled = false;
-            }
-            else if (pendingImage1 != null && pendingImage2 == null)
-            {
-                pendingImage2 = DupPic8;
-                DupPic8.Enabled = false;
-            }
-            if (pendingImage1 != null && pendingImage2 != null)
-            {
-                if (pendingImage1.Tag == pendingImage2.Tag)
-                {
-
-                    pendingImage1 = null;
-                    pendingImage2 = null;
-                    Ready15 = Pic8;
-                    Ready16 = DupPic8;
-                    Ready15.Enabled = false;
-                    Ready16.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) + 10);
-                    CheckWinState();
-                }
-                else
-                {
-                    timer3.Start();
-                    PicHolder.Enabled = false;
-                    ScoreNumber.Text = Convert.ToString(Convert.ToInt32(ScoreNumber.Text) - 1);
+                    MessageBox.Show("You lost, better luck next time!", "Game Over");
                 }
             }
         }
 
         private void newGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            GameBoard_Load(sender, e);
+            // Reset and start a new game
+            InitializeGame();
+            ShuffleCards();
+            LoadCardImages();
             TimeCounter.Text = "60";
             ScoreNumber.Text = "0";
+            timer1.Start();
             timer2.Stop();
-            Ready1 = null;
-            Ready2 = null;
-            Ready3 = null;
-            Ready4 = null;
-            Ready5 = null;
-            Ready6 = null;
-            Ready7 = null;
-            Ready8 = null;
-            Ready9 = null;
-            Ready10 = null;
-            Ready11 = null;
-            Ready12 = null;
-            Ready13 = null;
-            Ready14 = null;
-            Ready15 = null;
-            Ready16 = null;
         }
 
-        private void timer3_Tick(object sender, EventArgs e)
+        private void PicHolder_Paint(object sender, PaintEventArgs e)
         {
-            timer3.Stop();
-            PicHolder.Enabled = true;
-
-            #region IfPictureboxIsNullOrNot
-            if (Ready1 != null)
-                Pic1.Enabled = false;
-            else
-                Pic1.Enabled = true;
-
-            if (Ready2 != null)
-                DupPic1.Enabled = false;
-            else
-                DupPic1.Enabled = true;
-
-            if (Ready3 != null)
-                Pic2.Enabled = false;
-            else
-                Pic2.Enabled = true;
-
-            if (Ready4 != null)
-                DupPic2.Enabled = false;
-            else
-                DupPic2.Enabled = true;
-
-            if (Ready5 != null)
-                Pic3.Enabled = false;
-            else
-                Pic3.Enabled = true;
-
-            if (Ready6 != null)
-                DupPic3.Enabled = false;
-            else
-                DupPic3.Enabled = true;
-
-            if (Ready7 != null)
-                Pic4.Enabled = false;
-            else
-                Pic4.Enabled = true;
-
-            if (Ready8 != null)
-                DupPic4.Enabled = false;
-            else
-                DupPic4.Enabled = true;
-
-            if (Ready9 != null)
-                Pic5.Enabled = false;
-            else
-                Pic5.Enabled = true;
-
-            if (Ready10 != null)
-                DupPic5.Enabled = false;
-            else
-                DupPic5.Enabled = true;
-
-            if (Ready11 != null)
-                Pic6.Enabled = false;
-            else
-                Pic6.Enabled = true;
-
-            if (Ready12 != null)
-                DupPic6.Enabled = false;
-            else
-                DupPic6.Enabled = true;
-
-            if (Ready13 != null)
-                Pic7.Enabled = false;
-            else
-                Pic7.Enabled = true;
-
-            if (Ready14 != null)
-                DupPic7.Enabled = false;
-            else
-                DupPic7.Enabled = true;
-
-            if (Ready15 != null)
-                Pic8.Enabled = false;
-            else
-                Pic8.Enabled = true;
-
-            if (Ready16 != null)
-                DupPic8.Enabled = false;
-            else
-                DupPic8.Enabled = true;
-            #endregion
-
-            pendingImage1.Image = Properties.Resources.Cover;
-            pendingImage2.Image = Properties.Resources.Cover;
-            pendingImage1 = null;
-            pendingImage2 = null;
-
-            CheckWinState();
+            // This event handler is required by the Windows Forms Designer
+            // It's empty because we don't need custom painting, but the Designer needs it
         }
+
+        // Event handlers for card clicks - each one calls HandleCardClick with the appropriate card and image
+        private void Pic1_Click(object sender, EventArgs e) => HandleCardClick(Pic1, Properties.Resources.Pic1);
+        private void DupPic1_Click(object sender, EventArgs e) => HandleCardClick(DupPic1, Properties.Resources.Pic1);
+        private void Pic2_Click(object sender, EventArgs e) => HandleCardClick(Pic2, Properties.Resources.Pic2);
+        private void DupPic2_Click(object sender, EventArgs e) => HandleCardClick(DupPic2, Properties.Resources.Pic2);
+        private void Pic3_Click(object sender, EventArgs e) => HandleCardClick(Pic3, Properties.Resources.Pic3);
+        private void DupPic3_Click(object sender, EventArgs e) => HandleCardClick(DupPic3, Properties.Resources.Pic3);
+        private void Pic4_Click(object sender, EventArgs e) => HandleCardClick(Pic4, Properties.Resources.Pic4);
+        private void DupPic4_Click(object sender, EventArgs e) => HandleCardClick(DupPic4, Properties.Resources.Pic4);
+        private void Pic5_Click(object sender, EventArgs e) => HandleCardClick(Pic5, Properties.Resources.Pic5);
+        private void DupPic5_Click(object sender, EventArgs e) => HandleCardClick(DupPic5, Properties.Resources.Pic5);
+        private void Pic6_Click(object sender, EventArgs e) => HandleCardClick(Pic6, Properties.Resources.Pic6);
+        private void DupPic6_Click(object sender, EventArgs e) => HandleCardClick(DupPic6, Properties.Resources.Pic6);
+        private void Pic7_Click(object sender, EventArgs e) => HandleCardClick(Pic7, Properties.Resources.Pic7);
+        private void DupPic7_Click(object sender, EventArgs e) => HandleCardClick(DupPic7, Properties.Resources.Pic7);
+        private void Pic8_Click(object sender, EventArgs e) => HandleCardClick(Pic8, Properties.Resources.Pic8);
+        private void DupPic8_Click(object sender, EventArgs e) => HandleCardClick(DupPic8, Properties.Resources.Pic8);
     }
 }
