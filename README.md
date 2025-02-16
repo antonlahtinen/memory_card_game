@@ -17,7 +17,7 @@ A classic memory card game implemented in C# using Windows Forms. Test your memo
 
 1. Clone the repository:
    ```
-   git clone https://github.com/[your-username]/memory_card_game.git
+   git@github.com:antonlahtinen/memory_card_game.git
    ```
    
 2. Or download the ZIP file and extract it to your preferred location
